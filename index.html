@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +8,9 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Outfit:wght@400;600;800&display=swap"
+        rel="stylesheet">
     <style>
         :root {
             /* 밝은 톤 메인 테마 Palette */
@@ -63,8 +66,15 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         header {
@@ -118,8 +128,17 @@
         }
 
         @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.4); opacity: 0.6; }
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.4);
+                opacity: 0.6;
+            }
         }
 
         h1 {
@@ -220,6 +239,7 @@
             margin-bottom: 0.75rem;
             position: relative;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+            background: #f1f5f9;
         }
 
         .menu-img {
@@ -338,13 +358,20 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             animation: bounce 2s infinite ease-in-out;
         }
 
         @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-8px); }
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-8px);
+            }
         }
 
         .results-locked h3 {
@@ -369,7 +396,7 @@
             display: none;
             flex-direction: column;
             gap: 1.25rem;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
             animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
@@ -378,8 +405,15 @@
         }
 
         @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .sheet-info-banner {
@@ -435,6 +469,7 @@
             height: 28px;
             border-radius: 6px;
             object-fit: cover;
+            background: #f1f5f9;
         }
 
         .rank-badge {
@@ -495,10 +530,21 @@
         }
 
         /* Color variations for result bars */
-        .progress-bibimbap { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
-        .progress-donkatsu { background: linear-gradient(90deg, #ef4444, #f87171); }
-        .progress-gukbap { background: linear-gradient(90deg, #10b981, #34d399); }
-        .progress-salad { background: linear-gradient(90deg, #06b6d4, #22d3ee); }
+        .progress-bibimbap {
+            background: linear-gradient(90deg, #f59e0b, #fbbf24);
+        }
+
+        .progress-donkatsu {
+            background: linear-gradient(90deg, #ef4444, #f87171);
+        }
+
+        .progress-gukbap {
+            background: linear-gradient(90deg, #10b981, #34d399);
+        }
+
+        .progress-salad {
+            background: linear-gradient(90deg, #06b6d4, #22d3ee);
+        }
 
         .total-votes-bar {
             margin-top: 0.5rem;
@@ -781,6 +827,7 @@
         }
     </style>
 </head>
+
 <body>
 
     <canvas id="canvas"></canvas>
@@ -811,7 +858,8 @@
                     <div class="menu-card" data-menu="bibimbap">
                         <div class="radio-indicator"></div>
                         <div class="img-wrapper">
-                            <img src="images/bibimbap.jpg" alt="비빔밥" class="menu-img">
+                            <img src="https://images.unsplash.com/photo-1553163147-622ab57be1c7?auto=format&fit=crop&w=600&q=80"
+                                onerror="handleImgError(this, 'bibimbap')" alt="비빔밥" class="menu-img">
                         </div>
                         <div class="menu-name">비빔밥</div>
                         <div class="menu-desc">영양 만점 신선한 야채</div>
@@ -820,7 +868,8 @@
                     <div class="menu-card" data-menu="donkatsu">
                         <div class="radio-indicator"></div>
                         <div class="img-wrapper">
-                            <img src="images/donkatsu.jpg" alt="돈까스" class="menu-img">
+                            <img src="https://images.unsplash.com/photo-1591814468924-caf88d1232e1?auto=format&fit=crop&w=600&q=80"
+                                onerror="handleImgError(this, 'donkatsu')" alt="돈까스" class="menu-img">
                         </div>
                         <div class="menu-name">돈까스</div>
                         <div class="menu-desc">바삭바삭 겉바속촉</div>
@@ -829,7 +878,8 @@
                     <div class="menu-card" data-menu="gukbap">
                         <div class="radio-indicator"></div>
                         <div class="img-wrapper">
-                            <img src="images/gukbap.jpg" alt="국밥" class="menu-img">
+                            <img src="https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=600&q=80"
+                                onerror="handleImgError(this, 'gukbap')" alt="국밥" class="menu-img">
                         </div>
                         <div class="menu-name">국밥</div>
                         <div class="menu-desc">뜨끈하고 든든한 국물</div>
@@ -838,7 +888,8 @@
                     <div class="menu-card" data-menu="salad">
                         <div class="radio-indicator"></div>
                         <div class="img-wrapper">
-                            <img src="images/salad.jpg" alt="샐러드" class="menu-img">
+                            <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=600&q=80"
+                                onerror="handleImgError(this, 'salad')" alt="샐러드" class="menu-img">
                         </div>
                         <div class="menu-name">샐러드</div>
                         <div class="menu-desc">가볍고 건강한 한 끼</div>
@@ -866,10 +917,11 @@
 
                 <!-- 투표 완료 후 실시간 결과 화면 -->
                 <div class="results-container" id="resultsContainer">
-                    
+
                     <div class="sheet-info-banner">
                         <span>📊 구글 시트 실시간 데이터 연동</span>
-                        <a href="https://docs.google.com/spreadsheets/d/1mMUHbE00xLwBgvAX0GXD0fEJUNbfhpOgAfxIgLm31UE/edit?usp=sharing" target="_blank" class="sheet-link-btn">
+                        <a href="https://docs.google.com/spreadsheets/d/1mMUHbE00xLwBgvAX0GXD0fEJUNbfhpOgAfxIgLm31UE/edit?usp=sharing"
+                            target="_blank" class="sheet-link-btn">
                             시트 열기 ↗
                         </a>
                     </div>
@@ -878,7 +930,8 @@
                     <div class="result-item" id="result-bibimbap">
                         <div class="result-info">
                             <div class="result-menu-title">
-                                <img src="images/bibimbap.jpg" alt="비빔밥" class="result-thumb">
+                                <img src="https://images.unsplash.com/photo-1553163147-622ab57be1c7?auto=format&fit=crop&w=600&q=80"
+                                    onerror="handleImgError(this, 'bibimbap')" alt="비빔밥" class="result-thumb">
                                 <span>비빔밥</span>
                                 <span class="user-choice-badge">내 선택</span>
                                 <span class="rank-badge">👑 1위</span>
@@ -897,7 +950,8 @@
                     <div class="result-item" id="result-donkatsu">
                         <div class="result-info">
                             <div class="result-menu-title">
-                                <img src="images/donkatsu.jpg" alt="돈까스" class="result-thumb">
+                                <img src="https://images.unsplash.com/photo-1591814468924-caf88d1232e1?auto=format&fit=crop&w=600&q=80"
+                                    onerror="handleImgError(this, 'donkatsu')" alt="돈까스" class="result-thumb">
                                 <span>돈까스</span>
                                 <span class="user-choice-badge">내 선택</span>
                                 <span class="rank-badge">👑 1위</span>
@@ -916,7 +970,8 @@
                     <div class="result-item" id="result-gukbap">
                         <div class="result-info">
                             <div class="result-menu-title">
-                                <img src="images/gukbap.jpg" alt="국밥" class="result-thumb">
+                                <img src="https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=600&q=80"
+                                    onerror="handleImgError(this, 'gukbap')" alt="국밥" class="result-thumb">
                                 <span>국밥</span>
                                 <span class="user-choice-badge">내 선택</span>
                                 <span class="rank-badge">👑 1위</span>
@@ -935,7 +990,8 @@
                     <div class="result-item" id="result-salad">
                         <div class="result-info">
                             <div class="result-menu-title">
-                                <img src="images/salad.jpg" alt="샐러드" class="result-thumb">
+                                <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=600&q=80"
+                                    onerror="handleImgError(this, 'salad')" alt="샐러드" class="result-thumb">
                                 <span>샐러드</span>
                                 <span class="user-choice-badge">내 선택</span>
                                 <span class="rank-badge">👑 1위</span>
@@ -971,7 +1027,8 @@
             <div class="config-box" id="configBox">
                 <p>배포된 Google Apps Script Web App URL입니다. 투표 시 구글시트에 자동으로 저장됩니다.</p>
                 <div class="config-input-group">
-                    <input type="text" id="scriptUrlInput" class="config-input" placeholder="https://script.google.com/macros/s/.../exec">
+                    <input type="text" id="scriptUrlInput" class="config-input"
+                        placeholder="https://script.google.com/macros/s/.../exec">
                     <button id="saveScriptUrlBtn" class="config-save-btn">저장</button>
                 </div>
             </div>
@@ -991,7 +1048,8 @@
                     <span>⚠️</span> 변경 불가 및 구글시트 저장 안내
                 </div>
                 <div class="modal-warning-desc">
-                    투표를 완료하면 <strong>구글시트에 실시간 저장</strong>되며, 완료 후에는 <strong>선택 항목 변경 및 재투표가 불가능</strong>합니다. 계속 진행하시겠습니까?
+                    투표를 완료하면 <strong>구글시트에 실시간 저장</strong>되며, 완료 후에는 <strong>선택 항목 변경 및 재투표가 불가능</strong>합니다. 계속
+                    진행하시겠습니까?
                 </div>
             </div>
 
@@ -1008,6 +1066,23 @@
     </div>
 
     <script>
+        // Robust image fallback handler
+        function handleImgError(imgEl, key) {
+            const localPaths = {
+                bibimbap: 'images/bibimbap.jpg',
+                donkatsu: 'images/donkatsu.jpg',
+                gukbap: 'images/gukbap.jpg',
+                salad: 'images/salad.jpg'
+            };
+
+            const currentSrc = imgEl.src;
+            if (currentSrc.includes('unsplash.com')) {
+                imgEl.src = localPaths[key] || (key + '.jpg');
+            } else if (!currentSrc.includes(key + '.jpg')) {
+                imgEl.src = key + '.jpg';
+            }
+        }
+
         // Google Sheet Constants
         const SHEET_ID = '1mMUHbE00xLwBgvAX0GXD0fEJUNbfhpOgAfxIgLm31UE';
         const SHEET_JSON_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
@@ -1079,18 +1154,18 @@
             try {
                 const response = await fetch(SHEET_JSON_URL);
                 const text = await response.text();
-                
+
                 const jsonMatch = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/);
-                
+
                 if (jsonMatch && jsonMatch[1]) {
                     const data = JSON.parse(jsonMatch[1]);
                     const rows = (data.table && data.table.rows) ? data.table.rows : [];
 
                     rows.forEach(row => {
                         if (!row.c) return;
-                        
+
                         const rowStr = row.c.map(cell => (cell && cell.v !== null && cell.v !== undefined) ? String(cell.v).toLowerCase() : '').join(' ');
-                        
+
                         if (rowStr.includes('timestamp') && rowStr.includes('menu')) return;
 
                         if (rowStr.includes('비빔밥') || rowStr.includes('bibimbap')) {
@@ -1114,12 +1189,12 @@
         // Write vote to Google Sheet via Apps Script Endpoint
         async function postVoteToGoogleSheet(menuKey) {
             const menuName = getMenuName(menuKey);
-            
+
             if (appsScriptUrl) {
                 try {
                     await fetch(appsScriptUrl, {
                         method: 'POST',
-                        mode: 'no-cors', // Prevents CORS preflight issues on client side / Vercel
+                        mode: 'no-cors',
                         headers: {
                             'Content-Type': 'application/json'
                         },
@@ -1148,7 +1223,6 @@
             const sheetVotes = await fetchGoogleSheetVotes();
             voteData = { ...sheetVotes };
 
-            // Local fallback count if sheet isn't updated instantly
             if (hasVoted && myChoice && savedLocalVoteAdded === 'true') {
                 const totalSheet = Object.values(sheetVotes).reduce((a, b) => a + b, 0);
                 if (totalSheet === 0) {
@@ -1206,19 +1280,15 @@
 
             const chosen = selectedMenu;
 
-            // Update local state immediately for instant feedback
             voteData[chosen] = (voteData[chosen] || 0) + 1;
             hasVoted = true;
             myChoice = chosen;
             saveState();
 
-            // Render updated state & unlock results
             renderView();
 
-            // Submit POST to Google Sheet
             await postVoteToGoogleSheet(chosen);
 
-            // Re-sync with Google Sheet after delay to pull official row
             setTimeout(async () => {
                 await syncAndLoadState();
             }, 1500);
@@ -1401,4 +1471,5 @@
         syncAndLoadState();
     </script>
 </body>
+
 </html>
