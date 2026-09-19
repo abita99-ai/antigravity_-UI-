@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오늘의 점심 메뉴 실시간 투표 🍱</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* 밝은 톤 메인 테마 Palette */
+            --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
+            --container-bg: #ffffff;
+            --container-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.08), 0 0 30px rgba(147, 51, 234, 0.06);
+            --card-bg: #ffffff;
+            --card-border: #e2e8f0;
+            --card-hover-border: #c084fc;
+            --card-selected-bg: #f5f3ff;
+            --primary-gradient: linear-gradient(135deg, #9333ea 0%, #db2777 100%);
+            --primary-hover: linear-gradient(135deg, #7e22ce 0%, #be185d 100%);
+            --accent-glow: rgba(147, 51, 234, 0.25);
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --text-sub: #334155;
+
+            /* Menu Specific Colors */
+            --bibimbap-color: #d97706;
+            --donkatsu-color: #dc2626;
+            --gukbap-color: #059669;
+            --salad-color: #0891b2;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', 'Outfit', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem 1rem;
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 940px;
+            background: var(--container-bg);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            border-radius: 28px;
+            padding: 2.5rem;
+            box-shadow: var(--container-shadow);
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header-badges {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .badge-header {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: #f3e8ff;
+            border: 1px solid #e9d5ff;
+            border-radius: 50px;
+            color: #7e22ce;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .badge-vercel {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 50px;
+            color: #166534;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #16a34a;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 8px #16a34a;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.4); opacity: 0.6; }
+        }
+
+        h1 {
+            font-size: 2.25rem;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            color: #0f172a;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+        }
+
+        /* Layout Grid */
+        .vote-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2.5rem;
+        }
+
+        @media (min-width: 860px) {
+            .vote-layout {
+                grid-template-columns: 1.1fr 0.9fr;
+            }
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #0f172a;
+        }
+
+        .section-title span.count-tag {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #64748b;
+            background: #f1f5f9;
+            padding: 4px 12px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        /* Menu Selection Area */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .menu-card {
+            background: var(--card-bg);
+            border: 2px solid var(--card-border);
+            border-radius: 20px;
+            padding: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            user-select: none;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+        }
+
+        .menu-card:hover:not(.disabled) {
+            transform: translateY(-4px);
+            border-color: var(--card-hover-border);
+            box-shadow: 0 12px 24px -6px rgba(147, 51, 234, 0.15);
+            background: #ffffff;
+        }
+
+        .menu-card.selected {
+            background: var(--card-selected-bg);
+            border-color: #9333ea;
+            box-shadow: 0 0 20px rgba(147, 51, 234, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .menu-card.disabled {
+            cursor: not-allowed;
+            opacity: 0.75;
+        }
+
+        .img-wrapper {
+            width: 100%;
+            height: 115px;
+            border-radius: 14px;
+            overflow: hidden;
+            margin-bottom: 0.75rem;
+            position: relative;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .menu-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+
+        .menu-card:hover:not(.disabled) .menu-img {
+            transform: scale(1.08);
+        }
+
+        .menu-name {
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: #0f172a;
+            margin-bottom: 0.2rem;
+        }
+
+        .menu-desc {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .radio-indicator {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.9);
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(4px);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+
+        .menu-card.selected .radio-indicator {
+            border-color: #ffffff;
+            background-color: #9333ea;
+            box-shadow: 0 2px 6px rgba(147, 51, 234, 0.5);
+        }
+
+        .menu-card.selected .radio-indicator::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #ffffff;
+        }
+
+        /* Vote Button */
+        .vote-btn {
+            width: 100%;
+            padding: 1.1rem;
+            border: none;
+            border-radius: 16px;
+            background: var(--primary-gradient);
+            color: #ffffff;
+            font-family: inherit;
+            font-size: 1.15rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 25px -5px rgba(147, 51, 234, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .vote-btn:hover:not(:disabled) {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px -5px rgba(147, 51, 234, 0.6);
+        }
+
+        .vote-btn:active:not(:disabled) {
+            transform: translateY(1px);
+        }
+
+        .vote-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* Results Locked Placeholder */
+        .results-locked {
+            background: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            border-radius: 20px;
+            padding: 3rem 1.5rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            min-height: 380px;
+            transition: all 0.5s ease;
+        }
+
+        .lock-icon {
+            font-size: 3.5rem;
+            background: #f1f5f9;
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            animation: bounce 2s infinite ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .results-locked h3 {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #1e293b;
+        }
+
+        .results-locked p {
+            font-size: 0.9rem;
+            color: #64748b;
+            max-width: 280px;
+            line-height: 1.5;
+        }
+
+        /* Results Display Area (Active) */
+        .results-container {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 1.5rem;
+            display: none;
+            flex-direction: column;
+            gap: 1.25rem;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .results-container.active {
+            display: flex;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .sheet-info-banner {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 12px;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #1e40af;
+            font-weight: 600;
+        }
+
+        .sheet-link-btn {
+            color: #2563eb;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-weight: 700;
+        }
+
+        .sheet-link-btn:hover {
+            text-decoration: underline;
+        }
+
+        .result-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            position: relative;
+        }
+
+        .result-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.95rem;
+        }
+
+        .result-menu-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .result-thumb {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            object-fit: cover;
+        }
+
+        .rank-badge {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: #78350f;
+            font-size: 0.72rem;
+            font-weight: 900;
+            padding: 3px 8px;
+            border-radius: 8px;
+            display: none;
+            box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3);
+        }
+
+        .user-choice-badge {
+            background: #9333ea;
+            color: #ffffff;
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .result-item.my-pick .user-choice-badge {
+            display: inline-block;
+        }
+
+        .result-item.winner .rank-badge {
+            display: inline-block;
+        }
+
+        .result-stats {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        .result-stats span.percent {
+            color: #0f172a;
+            font-weight: 800;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 14px;
+            background: #e2e8f0;
+            border-radius: 50px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 50px;
+            transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+
+        /* Color variations for result bars */
+        .progress-bibimbap { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+        .progress-donkatsu { background: linear-gradient(90deg, #ef4444, #f87171); }
+        .progress-gukbap { background: linear-gradient(90deg, #10b981, #34d399); }
+        .progress-salad { background: linear-gradient(90deg, #06b6d4, #22d3ee); }
+
+        .total-votes-bar {
+            margin-top: 0.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .total-count {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .total-count strong {
+            color: var(--text-main);
+            font-size: 1.15rem;
+            font-weight: 900;
+        }
+
+        .actions-bar {
+            display: flex;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            color: #475569;
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .icon-btn:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+            border-color: #94a3b8;
+        }
+
+        .icon-btn.danger:hover {
+            background: #fef2f2;
+            border-color: #fca5a5;
+            color: #ef4444;
+        }
+
+        /* Config Modal */
+        .config-section {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e2e8f0;
+            font-size: 0.82rem;
+            color: #64748b;
+        }
+
+        .config-toggle-btn {
+            background: transparent;
+            border: none;
+            color: #64748b;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .config-toggle-btn:hover {
+            color: #9333ea;
+        }
+
+        .config-box {
+            display: none;
+            margin-top: 0.75rem;
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 14px;
+            padding: 1rem;
+        }
+
+        .config-box.active {
+            display: block;
+        }
+
+        .config-input-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .config-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-family: monospace;
+        }
+
+        .config-save-btn {
+            background: #9333ea;
+            color: #ffffff;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* Custom Confirmation Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            padding: 1rem;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-card {
+            background: #ffffff;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 420px;
+            padding: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-align: center;
+        }
+
+        .modal-overlay.active .modal-card {
+            transform: scale(1);
+        }
+
+        .modal-icon {
+            font-size: 3rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .modal-title {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-choice {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #9333ea;
+            background: #f3e8ff;
+            padding: 8px 16px;
+            border-radius: 12px;
+            display: inline-block;
+            margin: 0.5rem 0 1.25rem 0;
+        }
+
+        .modal-warning-box {
+            background: #fff7ed;
+            border: 1px solid #ffedd5;
+            border-radius: 12px;
+            padding: 0.85rem 1rem;
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .modal-warning-title {
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: #c2410c;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+
+        .modal-warning-desc {
+            font-size: 0.82rem;
+            color: #9a3412;
+            line-height: 1.4;
+            font-weight: 500;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 0.85rem;
+            border-radius: 14px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .modal-btn-cancel {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .modal-btn-cancel:hover {
+            background: #e2e8f0;
+            color: #334155;
+        }
+
+        .modal-btn-confirm {
+            background: var(--primary-gradient);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(147, 51, 234, 0.3);
+        }
+
+        .modal-btn-confirm:hover {
+            background: var(--primary-hover);
+            box-shadow: 0 6px 16px rgba(147, 51, 234, 0.4);
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #0f172a;
+            color: #ffffff;
+            padding: 14px 28px;
+            border-radius: 50px;
+            font-weight: 700;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.25);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 3000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        /* Confetti canvas */
+        #canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="canvas"></canvas>
+
+    <div class="container">
+        <header>
+            <div class="header-badges">
+                <div class="badge-header">
+                    <span class="live-dot"></span> Google Sheets DB Connected
+                </div>
+                <div class="badge-vercel">
+                    ⚡ Vercel & Live Server Ready
+                </div>
+            </div>
+            <h1>오늘 점심 뭐 먹지? 🍱</h1>
+            <p>구글 시트 '실시간 점심 메뉴 투표'와 연결된 실시간 투표 결과를 확인해보세요!</p>
+        </header>
+
+        <div class="vote-layout">
+            <!-- 선택 영역 -->
+            <div class="selection-section">
+                <div class="section-title">
+                    <span>메뉴 선택</span>
+                    <span class="count-tag">4개 옵션</span>
+                </div>
+
+                <div class="menu-grid">
+                    <div class="menu-card" data-menu="bibimbap">
+                        <div class="radio-indicator"></div>
+                        <div class="img-wrapper">
+                            <img src="images/bibimbap.jpg" alt="비빔밥" class="menu-img">
+                        </div>
+                        <div class="menu-name">비빔밥</div>
+                        <div class="menu-desc">영양 만점 신선한 야채</div>
+                    </div>
+
+                    <div class="menu-card" data-menu="donkatsu">
+                        <div class="radio-indicator"></div>
+                        <div class="img-wrapper">
+                            <img src="images/donkatsu.jpg" alt="돈까스" class="menu-img">
+                        </div>
+                        <div class="menu-name">돈까스</div>
+                        <div class="menu-desc">바삭바삭 겉바속촉</div>
+                    </div>
+
+                    <div class="menu-card" data-menu="gukbap">
+                        <div class="radio-indicator"></div>
+                        <div class="img-wrapper">
+                            <img src="images/gukbap.jpg" alt="국밥" class="menu-img">
+                        </div>
+                        <div class="menu-name">국밥</div>
+                        <div class="menu-desc">뜨끈하고 든든한 국물</div>
+                    </div>
+
+                    <div class="menu-card" data-menu="salad">
+                        <div class="radio-indicator"></div>
+                        <div class="img-wrapper">
+                            <img src="images/salad.jpg" alt="샐러드" class="menu-img">
+                        </div>
+                        <div class="menu-name">샐러드</div>
+                        <div class="menu-desc">가볍고 건강한 한 끼</div>
+                    </div>
+                </div>
+
+                <button id="voteBtn" class="vote-btn" disabled>
+                    <span>투표하기</span> ✨
+                </button>
+            </div>
+
+            <!-- 결과 영역 -->
+            <div class="results-section">
+                <div class="section-title">
+                    <span>실시간 투표 결과</span>
+                    <span class="count-tag" id="liveTag">LOCKED</span>
+                </div>
+
+                <!-- 투표 완료 전 잠금 안내 화면 -->
+                <div class="results-locked" id="resultsLocked">
+                    <div class="lock-icon">🔒</div>
+                    <h3>투표 후 실시간 결과 공개</h3>
+                    <p>메뉴를 선택하고 투표하기 버튼을 눌러 투표를 완료하시면 구글 시트 기반 집계 결과를 확인하실 수 있습니다.</p>
+                </div>
+
+                <!-- 투표 완료 후 실시간 결과 화면 -->
+                <div class="results-container" id="resultsContainer">
+                    
+                    <div class="sheet-info-banner">
+                        <span>📊 구글 시트 실시간 데이터 연동</span>
+                        <a href="https://docs.google.com/spreadsheets/d/1mMUHbE00xLwBgvAX0GXD0fEJUNbfhpOgAfxIgLm31UE/edit?usp=sharing" target="_blank" class="sheet-link-btn">
+                            시트 열기 ↗
+                        </a>
+                    </div>
+
+                    <!-- 비빔밥 -->
+                    <div class="result-item" id="result-bibimbap">
+                        <div class="result-info">
+                            <div class="result-menu-title">
+                                <img src="images/bibimbap.jpg" alt="비빔밥" class="result-thumb">
+                                <span>비빔밥</span>
+                                <span class="user-choice-badge">내 선택</span>
+                                <span class="rank-badge">👑 1위</span>
+                            </div>
+                            <div class="result-stats">
+                                <span class="percent" id="percent-bibimbap">0%</span>
+                                (<span class="count" id="count-bibimbap">0</span>표)
+                            </div>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill progress-bibimbap" id="bar-bibimbap"></div>
+                        </div>
+                    </div>
+
+                    <!-- 돈까스 -->
+                    <div class="result-item" id="result-donkatsu">
+                        <div class="result-info">
+                            <div class="result-menu-title">
+                                <img src="images/donkatsu.jpg" alt="돈까스" class="result-thumb">
+                                <span>돈까스</span>
+                                <span class="user-choice-badge">내 선택</span>
+                                <span class="rank-badge">👑 1위</span>
+                            </div>
+                            <div class="result-stats">
+                                <span class="percent" id="percent-donkatsu">0%</span>
+                                (<span class="count" id="count-donkatsu">0</span>표)
+                            </div>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill progress-donkatsu" id="bar-donkatsu"></div>
+                        </div>
+                    </div>
+
+                    <!-- 국밥 -->
+                    <div class="result-item" id="result-gukbap">
+                        <div class="result-info">
+                            <div class="result-menu-title">
+                                <img src="images/gukbap.jpg" alt="국밥" class="result-thumb">
+                                <span>국밥</span>
+                                <span class="user-choice-badge">내 선택</span>
+                                <span class="rank-badge">👑 1위</span>
+                            </div>
+                            <div class="result-stats">
+                                <span class="percent" id="percent-gukbap">0%</span>
+                                (<span class="count" id="count-gukbap">0</span>표)
+                            </div>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill progress-gukbap" id="bar-gukbap"></div>
+                        </div>
+                    </div>
+
+                    <!-- 샐러드 -->
+                    <div class="result-item" id="result-salad">
+                        <div class="result-info">
+                            <div class="result-menu-title">
+                                <img src="images/salad.jpg" alt="샐러드" class="result-thumb">
+                                <span>샐러드</span>
+                                <span class="user-choice-badge">내 선택</span>
+                                <span class="rank-badge">👑 1위</span>
+                            </div>
+                            <div class="result-stats">
+                                <span class="percent" id="percent-salad">0%</span>
+                                (<span class="count" id="count-salad">0</span>표)
+                            </div>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill progress-salad" id="bar-salad"></div>
+                        </div>
+                    </div>
+
+                    <div class="total-votes-bar">
+                        <div class="total-count">
+                            총 투표 수: <strong id="totalVotesCount">0</strong>표
+                        </div>
+                        <div class="actions-bar">
+                            <button class="icon-btn" id="refreshBtn">🔄 시트 새로고침</button>
+                            <button class="icon-btn danger" id="resetBtn">초기화</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Google Apps Script API Settings Section -->
+        <div class="config-section">
+            <button class="config-toggle-btn" id="configToggleBtn">
+                <span>⚙️ 구글시트 Apps Script API Endpoint 설정</span> ▾
+            </button>
+            <div class="config-box" id="configBox">
+                <p>배포된 Google Apps Script Web App URL입니다. 투표 시 구글시트에 자동으로 저장됩니다.</p>
+                <div class="config-input-group">
+                    <input type="text" id="scriptUrlInput" class="config-input" placeholder="https://script.google.com/macros/s/.../exec">
+                    <button id="saveScriptUrlBtn" class="config-save-btn">저장</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal Popup -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal-card">
+            <div class="modal-icon">🗳️</div>
+            <div class="modal-title">투표 내용 확인</div>
+            <div>선택하신 메뉴:</div>
+            <div class="modal-choice" id="modalChoiceText">돈까스</div>
+
+            <div class="modal-warning-box">
+                <div class="modal-warning-title">
+                    <span>⚠️</span> 변경 불가 및 구글시트 저장 안내
+                </div>
+                <div class="modal-warning-desc">
+                    투표를 완료하면 <strong>구글시트에 실시간 저장</strong>되며, 완료 후에는 <strong>선택 항목 변경 및 재투표가 불가능</strong>합니다. 계속 진행하시겠습니까?
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-cancel" id="modalCancelBtn">취소</button>
+                <button class="modal-btn modal-btn-confirm" id="modalConfirmBtn">투표 완료</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <span>🎉</span> <span id="toastMsg">투표가 성공적으로 완료되었습니다! (구글시트 저장됨)</span>
+    </div>
+
+    <script>
+        // Google Sheet Constants
+        const SHEET_ID = '1mMUHbE00xLwBgvAX0GXD0fEJUNbfhpOgAfxIgLm31UE';
+        const SHEET_JSON_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
+
+        // Default Deployed Apps Script Web App Endpoint URL
+        const DEFAULT_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxzIvh7k1yskL08E7kDbEfK8ztzn7G7IYwA-3yOIA2pipksrfHEMRDn5xYr0prwqTjA/exec';
+        let appsScriptUrl = localStorage.getItem('lunch_apps_script_url') || DEFAULT_APPS_SCRIPT_URL;
+
+        // Data State (Default: 0 for all menus if no data)
+        const DEFAULT_VOTES = {
+            bibimbap: 0,
+            donkatsu: 0,
+            gukbap: 0,
+            salad: 0
+        };
+
+        let voteData = { ...DEFAULT_VOTES };
+        let selectedMenu = null;
+        let hasVoted = false;
+        let myChoice = null;
+
+        // DOM Elements
+        const menuCards = document.querySelectorAll('.menu-card');
+        const voteBtn = document.getElementById('voteBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const toast = document.getElementById('toast');
+        const toastMsg = document.getElementById('toastMsg');
+        const totalVotesEl = document.getElementById('totalVotesCount');
+        const liveTag = document.getElementById('liveTag');
+
+        const resultsLocked = document.getElementById('resultsLocked');
+        const resultsContainer = document.getElementById('resultsContainer');
+
+        const confirmModal = document.getElementById('confirmModal');
+        const modalChoiceText = document.getElementById('modalChoiceText');
+        const modalCancelBtn = document.getElementById('modalCancelBtn');
+        const modalConfirmBtn = document.getElementById('modalConfirmBtn');
+
+        const configToggleBtn = document.getElementById('configToggleBtn');
+        const configBox = document.getElementById('configBox');
+        const scriptUrlInput = document.getElementById('scriptUrlInput');
+        const saveScriptUrlBtn = document.getElementById('saveScriptUrlBtn');
+
+        // Toggle Config Box
+        configToggleBtn.addEventListener('click', () => {
+            configBox.classList.toggle('active');
+        });
+
+        scriptUrlInput.value = appsScriptUrl;
+
+        saveScriptUrlBtn.addEventListener('click', () => {
+            const url = scriptUrlInput.value.trim();
+            localStorage.setItem('lunch_apps_script_url', url);
+            appsScriptUrl = url;
+            showToast('Apps Script API URL이 저장되었습니다! ⚙️');
+            configBox.classList.remove('active');
+        });
+
+        // Fetch Google Sheet Data (Read)
+        async function fetchGoogleSheetVotes() {
+            const sheetVotes = {
+                bibimbap: 0,
+                donkatsu: 0,
+                gukbap: 0,
+                salad: 0
+            };
+
+            try {
+                const response = await fetch(SHEET_JSON_URL);
+                const text = await response.text();
+                
+                const jsonMatch = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/);
+                
+                if (jsonMatch && jsonMatch[1]) {
+                    const data = JSON.parse(jsonMatch[1]);
+                    const rows = (data.table && data.table.rows) ? data.table.rows : [];
+
+                    rows.forEach(row => {
+                        if (!row.c) return;
+                        
+                        const rowStr = row.c.map(cell => (cell && cell.v !== null && cell.v !== undefined) ? String(cell.v).toLowerCase() : '').join(' ');
+                        
+                        if (rowStr.includes('timestamp') && rowStr.includes('menu')) return;
+
+                        if (rowStr.includes('비빔밥') || rowStr.includes('bibimbap')) {
+                            sheetVotes.bibimbap++;
+                        } else if (rowStr.includes('돈까스') || rowStr.includes('donkatsu')) {
+                            sheetVotes.donkatsu++;
+                        } else if (rowStr.includes('국밥') || rowStr.includes('gukbap')) {
+                            sheetVotes.gukbap++;
+                        } else if (rowStr.includes('샐러드') || rowStr.includes('salad')) {
+                            sheetVotes.salad++;
+                        }
+                    });
+                }
+            } catch (err) {
+                console.warn('Google Sheet 읽기 오류 (기본값 유지):', err);
+            }
+
+            return sheetVotes;
+        }
+
+        // Write vote to Google Sheet via Apps Script Endpoint
+        async function postVoteToGoogleSheet(menuKey) {
+            const menuName = getMenuName(menuKey);
+            
+            if (appsScriptUrl) {
+                try {
+                    await fetch(appsScriptUrl, {
+                        method: 'POST',
+                        mode: 'no-cors', // Prevents CORS preflight issues on client side / Vercel
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            menu: menuName,
+                            voter: '사용자_' + Math.random().toString(36).substring(2, 6),
+                            timestamp: new Date().toISOString()
+                        })
+                    });
+                    console.log('Google Sheet에 투표 POST 전송 완료:', menuName);
+                } catch (e) {
+                    console.error('Google Sheet POST 실패:', e);
+                }
+            }
+        }
+
+        // Load vote state and sync
+        async function syncAndLoadState() {
+            const savedHasVoted = localStorage.getItem('lunch_has_voted');
+            const savedMyChoice = localStorage.getItem('lunch_my_choice');
+            const savedLocalVoteAdded = localStorage.getItem('lunch_local_vote_added');
+
+            hasVoted = (savedHasVoted === 'true');
+            myChoice = savedMyChoice || null;
+
+            const sheetVotes = await fetchGoogleSheetVotes();
+            voteData = { ...sheetVotes };
+
+            // Local fallback count if sheet isn't updated instantly
+            if (hasVoted && myChoice && savedLocalVoteAdded === 'true') {
+                const totalSheet = Object.values(sheetVotes).reduce((a, b) => a + b, 0);
+                if (totalSheet === 0) {
+                    voteData[myChoice] = (voteData[myChoice] || 0) + 1;
+                }
+            }
+
+            renderView();
+        }
+
+        function saveState() {
+            localStorage.setItem('lunch_has_voted', hasVoted ? 'true' : 'false');
+            if (myChoice) {
+                localStorage.setItem('lunch_my_choice', myChoice);
+                localStorage.setItem('lunch_local_vote_added', 'true');
+            } else {
+                localStorage.removeItem('lunch_my_choice');
+                localStorage.removeItem('lunch_local_vote_added');
+            }
+        }
+
+        // Selection Handling
+        menuCards.forEach(card => {
+            card.addEventListener('click', () => {
+                if (hasVoted) return;
+
+                menuCards.forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                selectedMenu = card.dataset.menu;
+                voteBtn.disabled = false;
+            });
+        });
+
+        // Open Confirmation Modal
+        voteBtn.addEventListener('click', () => {
+            if (!selectedMenu || hasVoted) return;
+
+            modalChoiceText.textContent = getMenuName(selectedMenu);
+            confirmModal.classList.add('active');
+        });
+
+        // Modal Actions
+        modalCancelBtn.addEventListener('click', () => {
+            confirmModal.classList.remove('active');
+        });
+
+        modalConfirmBtn.addEventListener('click', () => {
+            confirmModal.classList.remove('active');
+            executeVote();
+        });
+
+        // Execute Vote & Submit to Google Sheet
+        async function executeVote() {
+            if (!selectedMenu || hasVoted) return;
+
+            const chosen = selectedMenu;
+
+            // Update local state immediately for instant feedback
+            voteData[chosen] = (voteData[chosen] || 0) + 1;
+            hasVoted = true;
+            myChoice = chosen;
+            saveState();
+
+            // Render updated state & unlock results
+            renderView();
+
+            // Submit POST to Google Sheet
+            await postVoteToGoogleSheet(chosen);
+
+            // Re-sync with Google Sheet after delay to pull official row
+            setTimeout(async () => {
+                await syncAndLoadState();
+            }, 1500);
+
+            showToast(`'${getMenuName(chosen)}' 투표가 완료되었습니다! (구글시트에 저장됨) 🎉`);
+            triggerConfetti();
+        }
+
+        // Manual Refresh Button
+        refreshBtn.addEventListener('click', async () => {
+            refreshBtn.textContent = '🔄 동기화 중...';
+            await syncAndLoadState();
+            refreshBtn.textContent = '🔄 시트 새로고침';
+            showToast('구글 시트 실시간 데이터를 새로고침했습니다. 📊');
+        });
+
+        // Reset / Re-vote Action
+        resetBtn.addEventListener('click', () => {
+            if (confirm('투표 상태를 초기화하고 다시 투표하시겠습니까?')) {
+                hasVoted = false;
+                myChoice = null;
+                selectedMenu = null;
+                saveState();
+                syncAndLoadState();
+                showToast('초기화되었습니다. 메뉴를 다시 선택해주세요! 🔄');
+            }
+        });
+
+        function getMenuName(key) {
+            const names = {
+                bibimbap: '비빔밥',
+                donkatsu: '돈까스',
+                gukbap: '국밥',
+                salad: '샐러드'
+            };
+            return names[key] || key;
+        }
+
+        // Main Render Controller
+        function renderView() {
+            if (hasVoted) {
+                resultsLocked.style.display = 'none';
+                resultsContainer.classList.add('active');
+                liveTag.textContent = 'LIVE';
+                liveTag.style.background = '#dcfce7';
+                liveTag.style.color = '#15803d';
+
+                menuCards.forEach(card => {
+                    card.classList.remove('selected');
+                    if (card.dataset.menu === myChoice) {
+                        card.classList.add('selected');
+                    }
+                    card.classList.add('disabled');
+                });
+
+                voteBtn.disabled = true;
+                voteBtn.innerHTML = `<span>투표 완료</span> ✅`;
+
+                updateResultsUI();
+            } else {
+                resultsLocked.style.display = 'flex';
+                resultsContainer.classList.remove('active');
+                liveTag.textContent = 'LOCKED';
+                liveTag.style.background = '#f1f5f9';
+                liveTag.style.color = '#64748b';
+
+                menuCards.forEach(card => {
+                    card.classList.remove('selected', 'disabled');
+                });
+
+                voteBtn.disabled = !selectedMenu;
+                voteBtn.innerHTML = `<span>투표하기</span> ✨`;
+            }
+        }
+
+        // Update Results UI calculation
+        function updateResultsUI() {
+            const total = Object.values(voteData).reduce((a, b) => a + b, 0);
+            totalVotesEl.textContent = total;
+
+            const maxVotes = Math.max(...Object.values(voteData));
+
+            Object.keys(DEFAULT_VOTES).forEach(key => {
+                const count = voteData[key] || 0;
+                const percent = total > 0 ? ((count / total) * 100).toFixed(1) : "0.0";
+
+                const countEl = document.getElementById(`count-${key}`);
+                const percentEl = document.getElementById(`percent-${key}`);
+                const barEl = document.getElementById(`bar-${key}`);
+                const itemEl = document.getElementById(`result-${key}`);
+
+                if (countEl) countEl.textContent = count;
+                if (percentEl) percentEl.textContent = `${percent}%`;
+                if (barEl) barEl.style.width = `${percent}%`;
+
+                if (itemEl) {
+                    if (key === myChoice) {
+                        itemEl.classList.add('my-pick');
+                    } else {
+                        itemEl.classList.remove('my-pick');
+                    }
+
+                    if (count === maxVotes && count > 0) {
+                        itemEl.classList.add('winner');
+                    } else {
+                        itemEl.classList.remove('winner');
+                    }
+                }
+            });
+        }
+
+        function showToast(msg) {
+            toastMsg.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3500);
+        }
+
+        // Particle Confetti Effect
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function triggerConfetti() {
+            particles = [];
+            const colors = ['#9333ea', '#ec4899', '#f59e0b', '#10b981', '#06b6d4', '#3b82f6'];
+            for (let i = 0; i < 80; i++) {
+                particles.push({
+                    x: window.innerWidth / 2,
+                    y: window.innerHeight / 2,
+                    vx: (Math.random() - 0.5) * 15,
+                    vy: (Math.random() - 0.7) * 15,
+                    size: Math.random() * 8 + 4,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    life: 100,
+                    rotation: Math.random() * 360,
+                    rSpeed: (Math.random() - 0.5) * 10
+                });
+            }
+            requestAnimationFrame(updateConfetti);
+        }
+
+        function updateConfetti() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            let alive = false;
+
+            particles.forEach(p => {
+                if (p.life > 0) {
+                    alive = true;
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.3;
+                    p.life -= 1.2;
+                    p.rotation += p.rSpeed;
+
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate((p.rotation * Math.PI) / 180);
+                    ctx.fillStyle = p.color;
+                    ctx.globalAlpha = Math.max(0, p.life / 100);
+                    ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                    ctx.restore();
+                }
+            });
+
+            if (alive) {
+                requestAnimationFrame(updateConfetti);
+            }
+        }
+
+        // Initialize with Google Sheet sync
+        syncAndLoadState();
+    </script>
+</body>
+</html>
